@@ -3,7 +3,7 @@ import re #regex - é uma sequência de caracteres que forma um padrão de busca
 
 medicos = {}
 
-def cadastro_medico():
+def cadastrar_profissional():
     while True:
         codigo = int(input('Digite o código do novo médico: '))
         if codigo in medicos:
@@ -40,6 +40,6 @@ def cadastro_medico():
             medicos[codigo] = (nome, data_nascimento, cpf, sexo, telefone, email)
             break
 
-cadastro_medico()
+""" cadastrar_profissional()
 
-print(medicos)
+print(medicos) """

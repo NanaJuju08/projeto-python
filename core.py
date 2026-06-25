@@ -1,7 +1,7 @@
-from cadastros.clientes import cadastrar_cliente
-from cadastros.profissionais import cadastrar_profissional
-from cadastros.procedimentos import cadastrar_procedimento
-from cadastros.agendamentos import cadastrar_agendamento
+from cadastros.clientes import *
+from cadastros.profissionais import *
+from cadastros.procedimentos import *
+from cadastros.agendamentos import *
 
 nome_secretario = input(
     '\nBem-vindo(a) ao sistema da Clínica Mari Glow.\n'
@@ -18,40 +18,56 @@ else:
         opcao = int(input(
             '\n========================================'
             f'\nOlá, {nome_secretario}. O que deseja realizar hoje?\n'
-            '1 - Cadastro de clientes\n'
-            '2 - Cadastro de profissionais\n'
-            '3 - Cadastro de procedimentos\n'
-            '4 - Cadastro de agendamentos\n'
-            '5 - Consulta de agendamentos\n'
-            '6 - Emissão de relatórios\n'
-            '7 - Sair\n'
+            '1 - Clientes\n'
+            '2 - Profissionais\n'
+            '3 - procedimentos\n'
+            '4 - Agendamentos\n'
+            '5 - Emissão de relatórios\n'
+            '6 - Sair\n'
             'Digite a opção: '
         ))
 
         match opcao:
             case 1:
-                print('\n========== CADASTRO DE CLIENTES ==========')
-                cadastrar_cliente()
+                print('\n========== CLIENTES ==========')
+                op = input('O que deseja fazer?\n'
+                           'C - Cadastro\n'
+                           'A - Alteração\n'
+                           'E - Exclusão\n'
+                           'P - Pesquisa\n'
+                           'Escolha a opção que deseja: ').upper()
+                
+                if op == 'C':
+                    cadastrar_cliente()
+                
+                if op == 'A':
+                    alterar_cliente()
+                
+                if op == 'E':
+                    excluir_cliente()
+                
+                if op == 'P':
+                    pesquisar_cliente()
+                
+                else:
+                    print('Opção inválida. Tente novamente.')
 
             case 2:
-                print('\n========== CADASTRO DE PROFISSIONAIS ==========')
+                print('\n========== PROFISSIONAIS ==========')
                 cadastrar_profissional()
 
             case 3:
-                print('\n========== CADASTRO DE PROCEDIMENTOS ==========')
+                print('\n========== PROCEDIMENTOS ==========')
                 cadastrar_procedimento()
 
             case 4:
-                print('\n========== CADASTRO DE AGENDAMENTOS ==========')
+                print('\n========== AGENDAMENTOS ==========')
                 cadastrar_agendamento()
 
             case 5:
-                print('\n========== CONSULTA DE AGENDAMENTOS ==========')
-
-            case 6:
                 print('\n========== RELATÓRIOS ==========')
 
-            case 7:
+            case 6:
                 print('\nEncerrando sistema.'
                       '\nSaindo do sistema. Tenha um ótimo dia!')
                 break

@@ -26,12 +26,12 @@ def cadastrar_cliente():
                 break
 
         cliente['idade'] = validar_mensagem('Idade: ')
-        cliente['data_nascimento'] = input('Data de nascimento (Ex.: dd/mm/aaaa): ')
-        cliente['telefone'] = input('Telefone movel (Ex.: 00000-0000): ')
-        cliente['email'] = input('E-mail: ')
-        cliente['sexo'] = input('Sexo: ')
-        cliente['endereco'] = input('Endereco: ')
-        cliente['observacoes'] = input('Observacoes sobre o cliente: ')
+        cliente['data_nascimento'] = validar_data('Data de nascimento (Ex.: dd/mm/aaaa): ')
+        cliente['telefone'] = validar_telefone('Telefone movel (Ex.: 00000-0000): ')
+        cliente['email'] = validar_email('E-mail: ')
+        cliente['sexo'] = input('Sexo: ').capitalize()
+        cliente['endereco'] = input('Endereço: ').capitalize()
+        cliente['observacoes'] = input('Observaçoes sobre o cliente: ').capitalize()
 
         clientes.append(cliente)
 
@@ -50,3 +50,47 @@ def cadastrar_cliente():
 
         if continuar != 'S':
             break
+
+def alterar_cliente():
+        codigo = validar_mensagem('Digite o codigo do cliente: ')
+
+        cliente_encontrado = None
+
+        for cliente in clientes:
+            if cliente['codigo'] == codigo:
+                cliente_encontrado = cliente
+                break
+
+        if cliente_encontrado is None:
+            print('Cliente nao encontrado!')
+            return
+
+        print('\nDados atuais:')
+        for chave, valor in cliente_encontrado.items():
+            print(f'{chave}: {valor}')
+
+        print('\nDeixe em branco para manter o valor atual.')
+
+        nome = input(f'Nome [{cliente_encontrado["nome"]}]: ')
+        if nome:
+            cliente_encontrado['nome'] = nome
+
+        telefone = input(
+            f'Telefone [{cliente_encontrado["telefone"]}]: '
+        )
+        if telefone:
+            cliente_encontrado['telefone'] = telefone
+
+        email = input(
+            f'E-mail [{cliente_encontrado["email"]}]: '
+        )
+        if email:
+            cliente_encontrado['email'] = email
+
+        endereco = input(
+            f'Endereco [{cliente_encontrado["endereco"]}]: '
+        )
+        if endereco:
+            cliente_encontrado['endereco'] = endereco
+
+        print('\nCliente alterado com sucesso!')

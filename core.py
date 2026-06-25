@@ -1,8 +1,10 @@
 from cadastros.clientes import cadastrar_cliente
 from cadastros.profissionais import cadastrar_profissional
+from cadastros.procedimentos import cadastrar_procedimento
+from cadastros.agendamentos import cadastrar_agendamento
 
 nome_secretario = input(
-    'Bem-vindo(a) ao sistema da Clínica Mari Glow.\n'
+    '\nBem-vindo(a) ao sistema da Clínica Mari Glow.\n'
     'Informe seu nome para iniciar o atendimento.\n'
     'Digite "sair" para encerrar: '
 )
@@ -14,6 +16,7 @@ else:
     while True:
 
         opcao = int(input(
+            '\n========================================'
             f'\nOlá, {nome_secretario}. O que deseja realizar hoje?\n'
             '1 - Cadastro de clientes\n'
             '2 - Cadastro de profissionais\n'
@@ -27,24 +30,26 @@ else:
 
         match opcao:
             case 1:
-                print('\nCadastro de clientes')
+                print('\n========== CADASTRO DE CLIENTES ==========')
                 cadastrar_cliente()
 
             case 2:
-                print('\nCadastro de profissionais')
+                print('\n========== CADASTRO DE PROFISSIONAIS ==========')
                 cadastrar_profissional()
 
             case 3:
-                print('\nCadastro de procedimentos')
+                print('\n========== CADASTRO DE PROCEDIMENTOS ==========')
+                cadastrar_procedimento()
 
             case 4:
-                print('\nCadastro de agendamentos')
+                print('\n========== CADASTRO DE AGENDAMENTOS ==========')
+                cadastrar_agendamento()
 
             case 5:
-                print('\nConsulta de agendamentos')
+                print('\n========== CONSULTA DE AGENDAMENTOS ==========')
 
             case 6:
-                print('\nRelatórios')
+                print('\n========== RELATÓRIOS ==========')
 
             case 7:
                 print('\nEncerrando sistema.'

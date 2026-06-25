@@ -1,7 +1,17 @@
+from datetime import datetime
+import re
+
 def validar_mensagem(mensagem):
     while True:
         try:
-            return int(input(mensagem))
+            numero = int(input(mensagem))
+
+            if numero < 0:
+                print('O valor nao pode ser negativo!')
+                continue
+
+            return numero
+
         except ValueError:
             print('Apenas numeros sao validos!')
 
@@ -37,3 +47,33 @@ def mascarar_cpf(cpf):
         return None
 
     return f'{cpf[:3]}.{cpf[3:6]}.{cpf[6:9]}-{cpf[9:]}'
+
+def validar_data(mensagem):
+    while True:
+        data = input(mensagem)
+
+        try:
+            datetime.strptime(data, '%d/%m/%Y')
+            return data
+        except ValueError:
+            print('Data invalida! Use o formato dd/mm/aaaa.')
+
+def validar_telefone(mensagem):
+    while True:
+        telefone = ''.join(filter(str.isdigit, input(mensagem)))
+
+        if len(telefone) == 9:
+            return f'{telefone[:5]}-{telefone[5:]}'
+
+        print('Telefone invalido! Use o formato 00000-0000.')
+
+def validar_email(mensagem):
+    padrao = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+
+    while True:
+        email = input(mensagem).strip()
+
+        if re.match(padrao, email):
+            return email
+
+        print('E-mail invalido!')

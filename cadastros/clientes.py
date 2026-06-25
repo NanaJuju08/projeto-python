@@ -1,34 +1,44 @@
-
 from dados.listas import clientes
-from utils.validacoes import validar_mensagem
+from utils.validacoes import *
+
 
 def cadastrar_cliente():
-
     while True:
         cliente = {}
-        cliente['codigo'] = len(clientes) + 1 #Incrementa +1 toda vez que cadastra um novo cliente - CONFERIR ACENTO!!
+        cliente['codigo'] = len(clientes) + 1
 
         print(
             'Tudo pronto para o cadastro do cliente.\n'
-            'Abaixo, insira as informações necessárias para concluir o cadastro!\n'
-            'Caso deseja sair do sistema, digite "sair" ou clique em qualquer tecla para prosseguir:\n'
+            'Abaixo, insira as informacoes necessarias para concluir o cadastro!\n'
         )
 
         cliente['nome'] = input('Nome completo: ')
-        cliente['cpf'] = input('CPF (Ex.: 000.000.000-00): ')
-        cliente['idade'] = validar_mensagem(int(input('Idade: ')))
+
+        while True:
+            cpf = validar_cpf(input('CPF: '))
+
+            if cpf:
+                if cpf_duplicado(cpf, clientes):
+                    print('CPF ja cadastrado!')
+                    continue
+
+                cliente['cpf'] = mascarar_cpf(cpf)
+                break
+
+        cliente['idade'] = validar_mensagem('Idade: ')
         cliente['data_nascimento'] = input('Data de nascimento (Ex.: dd/mm/aaaa): ')
-        cliente['telefone'] = input('Telefone móvel (Ex.: 00000-0000): ')
+        cliente['telefone'] = input('Telefone movel (Ex.: 00000-0000): ')
         cliente['email'] = input('E-mail: ')
         cliente['sexo'] = input('Sexo: ')
-        cliente['endereco'] = input('Endereço: ')
-        cliente['observacoes'] = input('Observações sobre o cliente: ')
-
+        cliente['endereco'] = input('Endereco: ')
+        cliente['observacoes'] = input('Observacoes sobre o cliente: ')
 
         clientes.append(cliente)
 
-        print('\nCliente cadastrado com sucesso!'
-            '\n========== DADOS DO CLIENTE ==========')
+        print(
+            '\nCliente cadastrado com sucesso!'
+            '\n========== DADOS DO CLIENTE =========='
+        )
 
         for chave, valor in cliente.items():
             campo = chave.replace('_', ' ').title()
@@ -37,6 +47,6 @@ def cadastrar_cliente():
         print('=' * 38)
 
         continuar = input('\nDeseja cadastrar outro cliente? (S/N): ').upper()
-        
+
         if continuar != 'S':
             break

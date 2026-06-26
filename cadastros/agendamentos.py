@@ -1,14 +1,5 @@
-from dados.listas import agendamentos, clientes, status_agendamento
+from dados.listas import *
 from utils.validacoes import *
-
-
-def buscar_cliente_por_codigo(codigo):
-    for cliente in clientes:
-        if cliente['codigo'] == codigo:
-            return cliente
-
-    return None
-
 
 def cadastrar_agendamento():
     while True:
@@ -32,13 +23,91 @@ def cadastrar_agendamento():
             agendamento['nome_cliente'] = cliente['nome']
             break
 
+        while True:
+            codigo_profissional = validar_mensagem('Código do profissional: ')
+            profissional = buscar_profissional_por_codigo(codigo_profissional)
+
+            if profissional is None:
+                print('Profissional não encontrado!')
+                continue
+
+            agendamento['codigo_profissional'] = codigo_profissional
+            agendamento['nome_profissional'] = profissional['nome']
+            break
+
+        
+        while True:
+            codigo_procedimento = validar_mensagem('Código do procedimento: ')
+            procedimento = buscar_procedimento_por_codigo(codigo_procedimento)
+
+            if procedimento is None:
+                print('Procedimento não encontrado!')
+                continue
+
+            agendamento['codigo_procedimento'] = codigo_procedimento
+            agendamento['nome_procedimento'] = procedimento['nome']
+            break
+
         agendamento['descricao'] = input('Descrição: ')
-        agendamento['data_inicio'] = validar_data('Data de ínicio (Ex.: dd/mm/aaaa): ')
-        agendamento['hora_inicio'] = input('Horário de início (Ex.: HH:mm):')
-        agendamento['data_fim'] = validar_data('Data de fim (Ex.: dd/mm/aaaa): ')
-        agendamento['hora_fim'] = input('Horário de início (Ex.: HH:mm):')
 
+        while True:
+            data_inicio = validar_data_numeros(
+                input('Data de início (ddmmaaaa): ')
+            )
 
+            if data_inicio:
+                agendamento['data_inicio'] = mascarar_data(data_inicio)
+                break
+
+        agendamento['hora_inicio'] = validar_hora('Horário de início:')
+
+        while True:
+            data_fim = validar_data_numeros(
+                input('Data de fim (ddmmaaaa): ')
+            )
+
+            if data_fim:
+                agendamento['data_fim'] = mascarar_data(data_fim)
+                break
+
+        agendamento['hora_fim'] = validar_hora('Horário de início:')
+
+        if not validar_periodo(agendamento['data_inicio'], agendamento['hora_inicio'], agendamento['data_fim'], agendamento['hora_fim']):
+            print('A data/hora final deve ser maior que a data/hora inicial.')
+            continue
+
+        #As tuplas sempre começam pelo index 0, então, enumeramos começando pelo 1 para mostrar ao usuário
+        #Porém o python ainda usa a index começada pelo 0, então, fazemo a opção do usuário(1,2,3..) -1 para o python(0,1,2..)
+        #O -1 converte:
+
+        #Usuário:
+        #1 - Agendado
+        #2 - Confirmado
+        #3 - Em andamento
+        #4 - Concluído
+
+        #Tupla:
+        #0 - Agendado
+        #1 - Confirmado
+        #2 - Em andamento
+        #3 - Concluído
+
+        print('\nStatus do agendamento:')
+
+        for i, status in enumerate(status_agendamento, start=1):
+            print(f'{i} - {status}')
+
+        while True:
+            opcao = validar_mensagem('Escolha o status: ')
+
+            if 1 <= opcao <= len(status_agendamento):
+                agendamento['status'] = status_agendamento[opcao - 1]
+                break
+
+            print('Status inválido!')
+
+        agendamento['observacoes'] = input('Observações: ').capitalize()
+            
         agendamentos.append(agendamento)
 
         print(

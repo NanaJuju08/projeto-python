@@ -110,7 +110,7 @@ def validar_telefone(mensagem, permitir_vazio=False):
         if len(telefone) == 9:
             return f'{telefone[:5]}-{telefone[5:]}'
 
-        print('Telefone inválido! Use o formato 00000-0000.')
+        print('O telefone deve possui 9 números')
 
 
 def telefone_duplicado(telefone, clientes):

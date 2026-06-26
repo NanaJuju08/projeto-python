@@ -39,7 +39,7 @@ def cadastrar_cliente():
 
         while True:
             telefone = validar_telefone(
-                'Telefone móvel (Ex.: 00000-0000): '
+                'Telefone móvel: '
             )
 
             if telefone_duplicado(telefone, clientes):
@@ -87,6 +87,9 @@ def cadastrar_cliente():
 
 def alterar_cliente():
     while True:
+        for c in clientes:
+            print(f'Código: {c["codigo"]} - Nome: {c["nome"]}')
+
         codigo = validar_mensagem('Digite o código do cliente: ')
 
         cliente_encontrado = None #Não agrega nenhum valor
@@ -98,10 +101,10 @@ def alterar_cliente():
                 break
 
         if cliente_encontrado == None:
-            print('Cliente não encontrado!')
+            print('\nCliente não encontrado!')
             return
 
-        print(f'\nDados atuais do cliente do código {codigo}:')
+        print(f'\nDados atuais do cliente:')
         for chave, valor in cliente_encontrado.items():
             campo = chave.replace('_', ' ').title()
             print(f'{campo:<20}: {valor}')
@@ -155,12 +158,12 @@ def alterar_cliente():
 
         print('\nCliente alterado com sucesso!')
     
-        print(f'\nDados alterado do cliente do código {cliente_encontrado}:')
+        print(f'\nDados alterados do cliente:')
 
         for chave, valor in cliente_encontrado.items():
             print(f'{chave}: {valor}')
         
-        continuar = input('\nDeseja cadastrar outro cliente? (S/N): ').upper()
+        continuar = input('\nDeseja alterar outro cliente? (S/N): ').upper()
 
         if continuar != 'S':
             break

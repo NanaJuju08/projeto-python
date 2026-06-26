@@ -9,7 +9,7 @@ def cadastrar_procedimento():
 
         print(
             'Tudo pronto para o cadastro do procedimento.\n'
-            'Abaixo, insira as informacoes necessarias para concluir o cadastro!\n'
+            'Abaixo, insira as informações necessárias para concluir o cadastro!\n'
         )
 
         procedimento['nome'] = input('Nome: ').capitalize()
@@ -41,6 +41,9 @@ def cadastrar_procedimento():
 
 def alterar_procedimento():
     while True:
+        for p in procedimentos:
+            print(f'Código: {p["codigo"]} - Nome: {p["nome"]}')
+            
         codigo = validar_mensagem('Digite o código do procedimento: ')
 
         procedimento_encontrado = None #Não agrega nenhum valor
@@ -52,28 +55,35 @@ def alterar_procedimento():
                 break
 
         if procedimento_encontrado == None:
-            print('procedimento não encontrado!')
+            print('Procedimento não encontrado!')
             return
 
-        print(f'\nDados atuais do procedimento do código {codigo}:')
+        print(f'\nDados atuais do procedimento:')
         for chave, valor in procedimento_encontrado.items():
             campo = chave.replace('_', ' ').title()
             print(f'{campo:<20}: {valor}')
 
         print('\nOBSERVAÇÃO: Deixe em branco para manter o valor atual.')
 
-        nome = input(f'Nome [{procedimento_encontrado["nome"]}]: ')
+        nome = input(f'Nome [{procedimento_encontrado["nome"]}]: ').capitalize()
         if nome:
             procedimento_encontrado['nome'] = nome
 
-        descricao = input(f'Descrição [{procedimento_encontrado["descricao"]}]: ')
+        descricao = input(f'Descrição [{procedimento_encontrado["descricao"]}]: ').capitalize
         if descricao:
-            procedimento_encontrado['descricao'] = descricao
+            procedimento_encontrado["descricao"] = descricao
+        
+        valor = validar_float(f'Sessões [{procedimento_encontrado["valor"]}]: ')
+        if valor:
+            procedimento_encontrado["valor"] = valor
 
+        duracao = validar_mensagem(f'Duração [{procedimento_encontrado["duracao"]}](colocar em minutos - Ex.: 120min): ')
+        if duracao:
+            procedimento_encontrado['duracao'] = duracao
 
-        descricao = input(f'Descrição [{procedimento_encontrado["descricao"]}]: ')
-        if descricao:
-            procedimento_encontrado['descricao'] = descricao
+        sessoes = validar_mensagem(f'Sessões [{procedimento_encontrado["sessoes"]}]: ')
+        if sessoes:
+            procedimento_encontrado['sessoes'] = sessoes
         
 
         print('\nprocedimento alterado com sucesso!')
@@ -83,7 +93,7 @@ def alterar_procedimento():
         for chave, valor in procedimento_encontrado.items():
             print(f'{chave}: {valor}')
         
-        continuar = input('\nDeseja cadastrar outro procedimento? (S/N): ').upper()
+        continuar = input('\nDeseja alterar outro procedimento? (S/N): ').upper()
 
         if continuar != 'S':
             break
@@ -115,9 +125,7 @@ def deletar_procedimento():
         return
 
     confirmar = input(
-        f'Tem certeza que deseja excluir o procedimento '
-        f'"{procedimento_encontrado["nome"]}"? (S/N): '
-    ).upper()
+        f'Tem certeza que deseja excluir o procedimento {procedimento_encontrado["nome"]}? (S/N): ').upper()
 
     if confirmar == 'S':
         procedimentos.remove(procedimento_encontrado)

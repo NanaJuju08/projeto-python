@@ -2,12 +2,13 @@ from cadastros.clientes import *
 from cadastros.profissionais import *
 from cadastros.procedimentos import *
 from cadastros.agendamentos import *
+from utils.validacoes import *
 
 nome_secretario = input(
     '\nBem-vindo(a) ao sistema da Clínica Mari Glow.\n'
     'Informe seu nome para iniciar o atendimento.\n'
     'Digite "sair" para encerrar: '
-)
+).capitalize()
 
 if nome_secretario.lower() == 'sair':
     print('Saindo do sistema. Tenha um ótimo dia!')
@@ -20,9 +21,9 @@ else:
             f'\nOlá, {nome_secretario}. O que deseja realizar hoje?\n'
             '1 - Clientes\n'
             '2 - Profissionais\n'
-            '3 - procedimentos\n'
+            '3 - Procedimentos\n'
             '4 - Agendamentos\n'
-            '5 - Emissão de relatórios\n'
+            '5 - Relatórios\n'
             '6 - Sair\n'
             'Digite a opção: '
         ))
@@ -30,6 +31,7 @@ else:
         match opcao:
             case 1:
                 print('\n========== CLIENTES ==========')
+
                 op = input('O que deseja fazer?\n'
                            'C - Cadastro\n'
                            'A - Alteração\n'
@@ -40,13 +42,13 @@ else:
                 if op == 'C':
                     cadastrar_cliente()
                 
-                if op == 'A':
+                elif op == 'A':
                     alterar_cliente()
                 
-                if op == 'E':
-                    excluir_cliente()
+                elif op == 'E':
+                    deletar_cliente()
                 
-                if op == 'P':
+                elif op == 'P':
                     pesquisar_cliente()
                 
                 else:
@@ -54,18 +56,109 @@ else:
 
             case 2:
                 print('\n========== PROFISSIONAIS ==========')
-                cadastrar_profissional()
+                
+                op = input('O que deseja fazer?\n'
+                           'C - Cadastro\n'
+                           'A - Alteração\n'
+                           'E - Exclusão\n'
+                           'P - Pesquisa\n'
+                           'Escolha a opção que deseja: ').upper()
+                
+                if op == 'C':
+                    cadastrar_profissional()
+                
+                elif op == 'A':
+                    alterar_profissional()
+                
+                elif op == 'E':
+                    deletar_profissional()
+                
+                elif op == 'P':
+                    pesquisar_profissional()
+                
+                else:
+                    print('Opção inválida. Tente novamente.')
 
             case 3:
                 print('\n========== PROCEDIMENTOS ==========')
-                cadastrar_procedimento()
+                
+                
+                op = input('O que deseja fazer?\n'
+                           'C - Cadastro\n'
+                           'A - Alteração\n'
+                           'E - Exclusão\n'
+                           'P - Pesquisa\n'
+                           'Escolha a opção que deseja: ').upper()
+                
+                if op == 'C':
+                    cadastrar_procedimento()
+                
+                elif op == 'A':
+                    alterar_procedimento()
+                
+                elif op == 'E':
+                    deletar_procedimento()
+                
+                elif op == 'P':
+                    pesquisar_procedimento()
+                
+                else:
+                    print('Opção inválida. Tente novamente.')
 
             case 4:
                 print('\n========== AGENDAMENTOS ==========')
-                cadastrar_agendamento()
+
+                op = input('O que deseja fazer?\n'
+                           'C - Cadastro\n'
+                           'A - Alteração\n'
+                           'E - Exclusão\n'
+                           'P - Pesquisa\n'
+                           'Escolha a opção que deseja: ').upper()
+                
+                if op == 'C':
+                    cadastrar_agendamento()
+                
+                elif op == 'A':
+                    alterar_agendamento()
+                
+                elif op == 'E':
+                    deletar_agendamento()
+                
+                elif op == 'P':
+                    pesquisar_agendamento()
+                
+                else:
+                    print('Opção inválida. Tente novamente.')
 
             case 5:
                 print('\n========== RELATÓRIOS ==========')
+
+                
+                op = validar_mensagem('Qual relatório deseja imprimir?\n'
+                           '1 - Clientes\n'
+                           '2 - Profissionais\n'
+                           '3 - Procedimentos\n'
+                           '4 - Agendamentos\n'
+                           '5 - Todos'
+                           'Escolha a opção que deseja: ')
+                
+                if op == 1:
+                    cadastrar_cliente()
+                
+                elif op == 2:
+                    alterar_cliente()
+                
+                elif op == 3:
+                    deletar_cliente()
+                
+                elif op == 4:
+                    pesquisar_cliente()
+                
+                elif op == 5:
+                    pesquisar_cliente()
+                
+                else:
+                    print('Opção inválida. Tente novamente.')
 
             case 6:
                 print('\nEncerrando sistema.'

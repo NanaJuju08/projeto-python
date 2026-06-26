@@ -221,11 +221,19 @@ def validar_periodo(data_inicio, hora_inicio, data_fim, hora_fim):
 
     if fim <= inicio:
         return False
+    
+    if inicio < datetime.now():
+        print('Não é possível agendar em uma data passada.')
+        return False
 
     return True
 
-def cliente_ocupado(codigo_cliente, inicio_novo, fim_novo, agendamentos):
+def cliente_ocupado(codigo_cliente, inicio_novo, fim_novo, agendamentos, codigo_ignorar=None):
+
     for agendamento in agendamentos:
+
+        if codigo_ignorar == agendamento['codigo']:
+            continue
 
         if agendamento['codigo_cliente'] != codigo_cliente:
             continue
@@ -247,10 +255,14 @@ def cliente_ocupado(codigo_cliente, inicio_novo, fim_novo, agendamentos):
 
     return False
 
-def profissional_ocupado(codigo_profissional, inicio_novo, fim_novo, agendamentos):
+def profissional_ocupado(codigo_profissional, inicio_novo, fim_novo, agendamentos, codigo_ignorar=None):
+
     for agendamento in agendamentos:
 
-        if agendamento['codigo_profissional'] != codigo_profissional):
+        if codigo_ignorar == agendamento['codigo']:
+            continue
+
+        if agendamento['codigo_profissional'] != codigo_profissional:
             continue
 
         inicio = datetime.strptime(

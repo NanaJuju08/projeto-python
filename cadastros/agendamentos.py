@@ -76,6 +76,33 @@ def cadastrar_agendamento():
             print('A data/hora final deve ser maior que a data/hora inicial.')
             continue
 
+        inicio_novo = datetime.strptime(
+            f"{agendamento['data_inicio']} {agendamento['hora_inicio']}",
+            '%d/%m/%Y %H:%M'
+        )
+
+        fim_novo = datetime.strptime(
+            f"{agendamento['data_fim']} {agendamento['hora_fim']}",
+            '%d/%m/%Y %H:%M'
+        )
+
+        if cliente_ocupado(agendamento['codigo_cliente'], inicio_novo, fim_novo, agendamentos):
+            print('Cliente já possui agendamento nesse horário.')
+            continue
+
+        if profissional_ocupado(agendamento['codigo_profissional'], inicio_novo, fim_novo, agendamentos):
+            print('Profissional já possui agendamento nesse horário.')
+            continue
+
+        #REGRAS IMPLEMENTADAS
+        #Validação de cliente, profissional e procedimento.
+        #Controle de datas e horários.
+        #Impedimento de agendamentos em datas passadas.
+        #Validação do período do atendimento.
+        #Controle de conflito de horários para clientes.
+        #Controle de conflito de horários para profissionais.
+        #Controle de status do agendamento.
+
         #As tuplas sempre começam pelo index 0, então, enumeramos começando pelo 1 para mostrar ao usuário
         #Porém o python ainda usa a index começada pelo 0, então, fazemo a opção do usuário(1,2,3..) -1 para o python(0,1,2..)
         #O -1 converte:
@@ -128,12 +155,132 @@ def cadastrar_agendamento():
 
 
 def alterar_agendamento():
+    while True:
+        print('\n')
+        for a in agendamentos:
+            print(f'Código: {c["codigo"]} - Nome: {c["nome"]}')
 
-    print(
-            'Tudo pronto para o cadastro do agendamento.\n'
-            'Abaixo, insira as informacoes necessarias para concluir o cadastro!\n'
+        codigo = validar_mensagem('Digite o código do agendamento: ')
+
+        agendamento_encontrado = None
+
+        for agendamento in agendamentos:
+            if agendamento['codigo'] == codigo:
+                agendamento_encontrado = agendamento
+                break
+
+        if agendamento_encontrado is None:
+            print('Agendamento não encontrado!')
+            return
+
+        print('\nDados atuais do agendamento:\n')
+
+        for chave, valor in agendamento_encontrado.items():
+            campo = chave.replace('_', ' ').title()
+            print(f'{campo:<20}: {valor}')
+
+        print('\nOBSERVAÇÃO:Deixe em branco para manter o valor atual.\n')
+
+        descricao = input(
+            f'Descrição [{agendamento_encontrado["descricao"]}]: ')
+
+        if descricao:
+            agendamento_encontrado['descricao'] = descricao
+
+        data_inicio = input(f'Data início [{agendamento_encontrado["data_inicio"]}] (ddmmaaaa): ')
+
+        if data_inicio:
+            data_inicio = mascarar_data(
+                validar_data_numeros(data_inicio)
+            )
+
+        else:
+            data_inicio = agendamento_encontrado['data_inicio']
+
+        hora_inicio = input(f'Hora início [{agendamento_encontrado["hora_inicio"]}]: ')
+
+        if not hora_inicio:
+            hora_inicio = agendamento_encontrado['hora_inicio']
+
+        data_fim = input(f'Data fim [{agendamento_encontrado["data_fim"]}] (ddmmaaaa): ')
+
+        if data_fim:
+            data_fim = mascarar_data(
+                validar_data_numeros(data_fim)
+            )
+
+        else:
+            data_fim = agendamento_encontrado['data_fim']
+
+        hora_fim = input(f'Hora fim [{agendamento_encontrado["hora_fim"]}]: ')
+
+        if not hora_fim:
+            hora_fim = agendamento_encontrado['hora_fim']
+
+        if not validar_periodo(data_inicio, hora_inicio, data_fim, hora_fim):
+            print('Período inválido!')
+            continue
+
+        inicio_novo = datetime.strptime(
+            f'{data_inicio} {hora_inicio}',
+            '%d/%m/%Y %H:%M'
         )
 
+        fim_novo = datetime.strptime(
+            f'{data_fim} {hora_fim}',
+            '%d/%m/%Y %H:%M'
+        )
+
+        if cliente_ocupado(agendamento_encontrado['codigo_cliente'], inicio_novo, fim_novo, agendamentos, agendamento_encontrado['codigo']):
+            print('Cliente já possui agendamento nesse horário!')
+            continue
+
+        if profissional_ocupado(agendamento_encontrado['codigo_profissional'], inicio_novo, fim_novo, agendamentos, agendamento_encontrado['codigo']):
+            print('Profissional já possui agendamento nesse horário!')
+            continue
+
+        agendamento_encontrado['data_inicio'] = data_inicio
+        agendamento_encontrado['hora_inicio'] = hora_inicio
+        agendamento_encontrado['data_fim'] = data_fim
+        agendamento_encontrado['hora_fim'] = hora_fim
+
+        print('\nStatus do agendamento:')
+
+        for i, status in enumerate(status_agendamento, start=1):
+            print(f'{i} - {status}')
+
+        opcao = input(
+            f'Status '
+            f'[{agendamento_encontrado["status"]}]: '
+        )
+
+        if opcao:
+            opcao = int(opcao)
+
+            if 1 <= opcao <= len(status_agendamento):
+                agendamento_encontrado['status'] = (
+                    status_agendamento[opcao - 1]
+                )
+
+        observacoes = input(
+            f'Observações [{agendamento_encontrado["observacoes"]}]: ').capitalize()
+
+        if observacoes:
+            agendamento_encontrado['observacoes'] = observacoes
+
+        print('\nAgendamento alterado com sucesso!\n')
+
+        print(f'\nDados alterados do cliente:')
+        for chave, valor in agendamento_encontrado.items():
+            campo = chave.replace('_', ' ').title()
+            print(f'{campo:<20}: {valor}')
+
+        continuar = input(
+            '\nDeseja alterar outro agendamento? (S/N): '
+        ).upper()
+
+        if continuar != 'S':
+            break
 
 def pesquisar_agendamento():
     while True:
@@ -211,4 +358,55 @@ def pesquisar_agendamento():
             break
     
 def deletar_agendamento():
-    print('Deletar')
+    agendamentos_excluiveis = []
+
+    for agendamento in agendamentos:
+        if agendamento['status'] in (
+            'Concluído',
+            'Cancelado',
+            'Faltou'
+        ):
+            agendamentos_excluiveis.append(agendamento)
+
+    if len(agendamentos_excluiveis) == 0:
+        print(
+            'Não há agendamentos disponíveis para exclusão.'
+        )
+        return
+
+    print('\n========== AGENDAMENTOS EXCLUÍVEIS ==========')
+
+    for a in agendamentos_excluiveis:
+        print(
+            f'Código: {a["codigo"]} - '
+            f'Cliente: {a["nome_cliente"]} - '
+            f'Status: {a["status"]}'
+        )
+
+    codigo = validar_mensagem(
+        '\nDigite o código do agendamento que deseja excluir: '
+    )
+
+    agendamento_encontrado = None
+
+    for a in agendamentos_excluiveis:
+        if a['codigo'] == codigo:
+            agendamento_encontrado = a
+            break
+
+    if agendamento_encontrado is None:
+        print('Agendamento não encontrado ou não pode ser excluído!')
+        return
+
+    confirmar = input(
+        f'Tem certeza que deseja excluir o agendamento '
+        f'do cliente '
+        f'{agendamento_encontrado["nome_cliente"]}? '
+        '(S/N): '
+    ).upper()
+
+    if confirmar == 'S':
+        agendamentos.remove(agendamento_encontrado)
+        print('Agendamento excluído com sucesso!')
+    else:
+        print('Exclusão cancelada.')

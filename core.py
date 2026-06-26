@@ -17,7 +17,7 @@ if nome_secretario.lower() == 'sair':
 else:
     while True:
 
-        opcao = int(input(
+        opcao = validar_mensagem(
             '\n========================================'
             f'\nOlá, {nome_secretario}. O que deseja realizar hoje?\n'
             '1 - Clientes\n'
@@ -27,7 +27,7 @@ else:
             '5 - Relatórios\n'
             '6 - Sair\n'
             'Digite a opção: '
-        ))
+        )
 
         match opcao:
             case 1:
@@ -53,7 +53,7 @@ else:
                     pesquisar_cliente()
                 
                 else:
-                    print('Opção inválida. Tente novamente.')
+                    print('\nOpção inválida. Tente novamente.')
 
             case 2:
                 print('\n========== PROFISSIONAIS ==========')
@@ -78,7 +78,7 @@ else:
                     pesquisar_profissional()
                 
                 else:
-                    print('Opção inválida. Tente novamente.')
+                    print('\nOpção inválida. Tente novamente.')
 
             case 3:
                 print('\n========== PROCEDIMENTOS ==========')
@@ -104,7 +104,7 @@ else:
                     pesquisar_procedimento()
                 
                 else:
-                    print('Opção inválida. Tente novamente.')
+                    print('\nOpção inválida. Tente novamente.')
 
             case 4:
                 print('\n========== AGENDAMENTOS ==========')
@@ -129,7 +129,7 @@ else:
                     pesquisar_agendamento()
                 
                 else:
-                    print('Opção inválida. Tente novamente.')
+                    print('\nOpção inválida. Tente novamente.')
 
             case 5:
                 print('\n========== RELATÓRIOS ==========')
@@ -159,7 +159,7 @@ else:
                     relatorio_geral()
                 
                 else:
-                    print('Opção inválida. Tente novamente.')
+                    print('\nOpção inválida. Tente novamente.')
 
             case 6:
                 print('\nEncerrando sistema.'

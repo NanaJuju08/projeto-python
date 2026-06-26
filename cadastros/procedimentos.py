@@ -69,17 +69,21 @@ def alterar_procedimento():
         if nome:
             procedimento_encontrado['nome'] = nome
 
-        descricao = input(f'Descrição [{procedimento_encontrado["descricao"]}]: ').capitalize
+
+        descricao = input(f'Descrição [{procedimento_encontrado["descricao"]}]: ').capitalize()
         if descricao:
             procedimento_encontrado["descricao"] = descricao
         
-        valor = validar_float(f'Sessões [{procedimento_encontrado["valor"]}]: ')
+
+        valor = validar_float(f'Valor [{procedimento_encontrado["valor"]}] (Ex.: 00.0): ')
         if valor:
             procedimento_encontrado["valor"] = valor
+
 
         duracao = validar_mensagem(f'Duração [{procedimento_encontrado["duracao"]}](colocar em minutos - Ex.: 120min): ')
         if duracao:
             procedimento_encontrado['duracao'] = duracao
+
 
         sessoes = validar_mensagem(f'Sessões [{procedimento_encontrado["sessoes"]}]: ')
         if sessoes:
@@ -100,7 +104,67 @@ def alterar_procedimento():
 
 
 def pesquisar_procedimento():
-    print('Pesquisar')
+    while True:
+        print(
+            '\nPreencha os campos que deseja usar como filtro.'
+            '\nDeixe em branco para não filtrar pelo campo.\n'
+        )
+
+        codigo = input('Código: ')
+        nome = validar_texto(input('Nome: '))
+        descricao = validar_texto(input('Descrição: '))
+        valor = input('Valor: ')
+        duracao = input('Duração: ')
+        sessoes = input('Sessões: ')
+
+        resultados = []
+
+        for procedimento in procedimentos:
+
+            if codigo and procedimento['codigo'] != int(codigo):
+                continue
+
+            if nome and nome not in validar_texto(procedimento['nome']):
+                continue
+
+            if descricao and descricao not in validar_texto(procedimento['descricao']):
+                continue
+
+            if valor and procedimento['valor'] != float(valor):
+                continue
+
+            if duracao and duracao.lower() not in procedimento['duracao'].lower():
+                continue
+
+            if sessoes and procedimento['sessoes'] != int(sessoes):
+                continue
+
+            resultados.append(procedimento)
+
+        if not resultados:
+            print('\nNenhum procedimento encontrado!')
+
+        else:
+            print(
+                f'\n{len(resultados)} '
+                'procedimento(s) encontrado(s):'
+            )
+
+            for procedimento in resultados:
+                print(
+                    '\n========== DADOS DO PROCEDIMENTO =========='
+                )
+
+                for chave, valor in procedimento.items():
+                    campo = (chave.replace('_', ' ').title())
+                    print(f'{campo:<20}: {valor}')
+
+                print('=' * 38)
+
+        continuar = input('\nDeseja realizar outra pesquisa? (S/N): ').upper()
+
+        if continuar != 'S':
+            break
 
 
 def deletar_procedimento():

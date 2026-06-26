@@ -1,5 +1,6 @@
 from dados.listas import *
 from datetime import datetime
+import unicodedata
 import re
 
 #OBSERVAÇÃO: O Try e o Except são utilizados para retorna o erro ao usuário sem quebrar o código
@@ -18,6 +19,7 @@ def validar_mensagem(mensagem):
 
         except ValueError:
             print('Apenas números são válidos!')
+
 
 def validar_float(mensagem):
     while True:
@@ -160,3 +162,111 @@ def buscar_cliente_por_codigo(codigo):
             return cliente
         
     return None
+
+
+#Busca o profissional por código, se retornar resposta, ele mostra o dicionário do profissional
+def buscar_profissional_por_codigo(codigo):
+    for profissional in profissionais:
+        if profissional['codigo'] == codigo:
+            return profissional
+        
+    return None
+
+
+#Busca o procedimento por código, se retornar resposta, ele mostra o dicionário do procedimento
+def buscar_procedimento_por_codigo(codigo):
+    for procedimento in procedimentos:
+        if procedimento['codigo'] == codigo:
+            return procedimento
+        
+    return None
+
+def validar_texto(texto):
+    texto = texto.lower().strip()
+
+    texto = unicodedata.normalize('NFD', texto)
+    texto = ''.join(
+        letra for letra in texto
+        if unicodedata.category(letra) != 'Mn'
+    )
+
+    texto = texto.replace(' ', '')
+
+    return texto
+
+
+def validar_hora(mensagem):
+    while True:
+        hora = input(mensagem)
+
+        try:
+            datetime.strptime(hora, '%H:%M')
+            return hora
+
+        except ValueError:
+            print('Hora inválida! Use HH:MM.')
+
+
+def validar_periodo(data_inicio, hora_inicio, data_fim, hora_fim):
+
+    inicio = datetime.strptime(
+        f'{data_inicio} {hora_inicio}',
+        '%d/%m/%Y %H:%M'
+    )
+
+    fim = datetime.strptime(
+        f'{data_fim} {hora_fim}',
+        '%d/%m/%Y %H:%M'
+    )
+
+    if fim <= inicio:
+        return False
+
+    return True
+
+def cliente_ocupado(codigo_cliente, inicio_novo, fim_novo, agendamentos):
+    for agendamento in agendamentos:
+
+        if agendamento['codigo_cliente'] != codigo_cliente:
+            continue
+
+        inicio = datetime.strptime(
+            f"{agendamento['data_inicio']} "
+            f"{agendamento['hora_inicio']}",
+            '%d/%m/%Y %H:%M'
+        )
+
+        fim = datetime.strptime(
+            f"{agendamento['data_fim']} "
+            f"{agendamento['hora_fim']}",
+            '%d/%m/%Y %H:%M'
+        )
+
+        if inicio_novo < fim and fim_novo > inicio:
+            return True
+
+    return False
+
+def profissional_ocupado(codigo_profissional, inicio_novo, fim_novo, agendamentos):
+    for agendamento in agendamentos:
+
+        if agendamento['codigo_profissional'] != codigo_profissional):
+            continue
+
+        inicio = datetime.strptime(
+            f"{agendamento['data_inicio']} "
+            f"{agendamento['hora_inicio']}",
+            '%d/%m/%Y %H:%M'
+        )
+
+        fim = datetime.strptime(
+            f"{agendamento['data_fim']} "
+            f"{agendamento['hora_fim']}",
+            '%d/%m/%Y %H:%M'
+        )
+
+        if inicio_novo < fim and fim_novo > inicio:
+            return True
+
+    return False
+

@@ -3,7 +3,7 @@ from utils.validacoes import *
 from datetime import datetime
 import re #regex - é uma sequência de caracteres que forma um padrão de busca, usada de forma rápida para validar, encontrar, ou substituir textos e dados que seguem regras específicas (como formatos de e-mail, CPF, ou senhas).
 
-medicos = {}
+profissional = {}
 
 def cadastrar_profissional():
     while True:
@@ -86,57 +86,135 @@ def cadastrar_profissional():
 
 
 def alterar_profissional():
-    print('Alterar')
+     while True:
+        print('\n')
+        for p in profissionais:
+            print(f'Código: {p["codigo"]} - Nome: {p["nome"]}')
+
+        codigo = validar_mensagem('Digite o código do profissional: ')
+
+        profissional_encontrado = None #Não agrega nenhum valor
+
+        #A variável profissional percorre a lista, se caso o código digitado esteja na lista, retorna o profissional_encontrado igual ao profissional
+        for profissional in profissionais:
+            if profissional['codigo'] == codigo:
+                profissional_encontrado = profissional
+                break
+
+        if profissional_encontrado == None:
+            print('\nprofissional não encontrado!')
+            return
+
+        print(f'\nDados atuais do profissional:')
+        for chave, valor in profissional_encontrado.items():
+            campo = chave.replace('_', ' ').title()
+            print(f'{campo:<20}: {valor}')
+
+        print('\nOBSERVAÇÃO: Deixe em branco para manter o valor atual.\n')
+
+        nome = input(f'Nome [{profissional_encontrado["nome"]}]: ')
+        if nome:
+            profissional_encontrado['nome'] = nome
+
+        while True:
+            telefone = validar_telefone(
+                f'Telefone [{profissional_encontrado["telefone"]}]: ',
+                permitir_vazio=True
+            )
+
+            if not telefone:
+                break
+
+            if telefone != profissional_encontrado['telefone'] and telefone_duplicado(telefone, profissionais):
+                print('Telefone já cadastrado!')
+                continue
+
+            profissional_encontrado['telefone'] = telefone
+            break
+
+
+        while True:
+            email = validar_email(
+                f'E-mail [{profissional_encontrado["email"]}]: ',
+                permitir_vazio=True
+            )
+
+            if not email:
+                break
+
+            if email.lower() != profissional_encontrado['email'].lower() and email_duplicado(email, profissionais):
+                print('E-mail já cadastrado!')
+                continue
+
+            profissional_encontrado['email'] = email
+            break
+
+
+        endereco = input(
+            f'Endereco [{profissional_encontrado["endereco"]}]: '
+        )
+        if endereco:
+            profissional_encontrado['endereco'] = endereco
+
+        print('\nprofissional alterado com sucesso!')
+    
+        print(f'\nDados alterados do profissional:')
+
+        for chave, valor in profissional_encontrado.items():
+            campo = chave.replace('_', ' ').title()
+            print(f'{campo:<20}: {valor}')
+        
+        continuar = input('\nDeseja alterar outro profissional? (S/N): ').upper()
+
+        if continuar != 'S':
+            break
 
 
 def pesquisar_profissional():
     while True:
         print(
-            '\n========== PESQUISA DE PROFISSIONAL =========='
             '\nPreencha os campos que deseja usar como filtro.'
             '\nDeixe em branco para nao filtrar pelo campo.\n'
         )
 
-        codigo = input('Codigo: ')
-        nome = input('Nome: ').lower()
+               # Cada input vira um "filtro opcional". Se a pessoa deixar em branco, a variável fica como string vazia (''), que é "falsy" em Python - isso e o que faz o filtro ser ignorado mais embaixo.
+        codigo = input('Código: ')
+        nome = validar_texto(input('Nome: '))
         cpf = input('CPF: ')
-        sexo = input('Sexo: ').lower()
-        email = input('Email: ').lower()
+        email = input('Email: ').lower().strip()
+        especialidade = validar_texto(input('Especialidade: '))
 
-        # Aqui o CPF NAO usa mascarar_cpf(), porque no cadastro de profissionais o CPF e salvo so com numeros (re.sub remove tudo que nao for digito). Entao limpamos o CPF digitado do mesmo jeito, pra garantir que a comparacao bata certinho.
+        # Só tenta validar/mascarar o CPF se a pessoa realmente digitou algo.
+        # Se o CPF for invalido, validar_cpf() retorna None, e o "if cpf_validado" evita que a gente tente mascarar um valor inválido.
         if cpf:
-            cpf = re.sub(r'\D', '', cpf)
+            cpf_validado = validar_cpf(cpf)
+            cpf = mascarar_cpf(cpf_validado) if cpf_validado else None
 
-        resultados = []
+        resultados = []  # lista temporaria, criada do zero em cada pesquisa
 
-        # medicos.items() devolve a CHAVE (cod) e o VALOR (dados) de cada item do dicionario ao mesmo tempo. Diferente de "profissionals", aqui "dados" e uma TUPLA, nao um dicionario - por isso precisamos desempacotar ela manualmente na linha de baixo.
-        for cod, dados in medicos.items():
-            # Desempacotamento de tupla: cada posicao da tupla "dados" e atribuida a uma variavel com nome, na MESMA ORDEM em que foi salva no cadastro (nome, data_nascimento, cpf, sexo, telefone, email).
-            # Isso evita ficar usando dados[0], dados[1], dados[2]... no resto do codigo.
-            nome_medico, data_nascimento, cpf_medico, sexo_medico, telefone, email_medico = dados
 
-            # Validacao de seguranca: se a pessoa digitar algo que nao seja numero no campo codigo, isso evita o ValueError de int(codigo) mais abaixo, e so ignora esse filtro com um aviso.
-            if codigo and not codigo.isdigit():
-                print('Codigo invalido, ignorando esse filtro.')
-                codigo = ''
-
-            if codigo and cod != int(codigo):
+        for profissional in profissionais:
+            
+            # Cada "if campo and condicao: continue" e um filtro.
+            # - Se o campo estiver vazio (''), o "and" ja para ali e o filtro e ignorado (o profissional passa direto, sem ser bloqueado).
+            # - Se o campo estiver preenchido, testa a condicao: se o profissional NÃO bate com o filtro, "continue" pula pro proximo profissional sem adicionar ele em resultados.
+            if codigo and profissional['codigo'] != int(codigo):
                 continue
 
-            if nome and nome not in nome_medico.lower():
+            if nome and nome not in validar_texto(profissional['nome']):
                 continue
 
-            if cpf and cpf_medico != cpf:
+            if cpf and profissional['cpf'] != cpf:
                 continue
 
-            if sexo and sexo != sexo_medico.lower():
+            if email and email not in profissional['email'].lower():
                 continue
 
-            if email and email not in email_medico.lower():
+            if especialidade and especialidade not in validar_texto(profissional['especialidade']):
                 continue
 
-            # Reconstroi uma tupla com TODOS os dados (incluindo o codigo, que normalmente fica de fora pois e a chave do dicionario) para poder exibir tudo junto na hora de mostrar o resultado.
-            resultados.append((cod, nome_medico, data_nascimento, cpf_medico, sexo_medico, telefone, email_medico))
+            # Se o profissional passou por TODOS os filtros sem cair em nenhum "continue", ele bate com a pesquisa e entra no resultado.
+            resultados.append(profissional)
 
         if not resultados:
             print('\nNenhum profissional encontrado!')
@@ -144,48 +222,47 @@ def pesquisar_profissional():
         else:
             print(f'\n{len(resultados)} profissional(is) encontrado(s):')
 
-            # Como "resultados" guarda tuplas (e nao dicionarios), precisamos desempacotar de novo aqui pra poder usar cada campo pelo nome na hora de exibir - nao tem ".items()" pra fazer isso automatico.
-            for cod, nome_medico, data_nascimento, cpf_medico, sexo_medico, telefone, email_medico in resultados:
+            for profissional in resultados:
                 print('\n========== DADOS DO PROFISSIONAL ==========')
-                print(f'{"Codigo":<20}: {cod}')
-                print(f'{"Nome":<20}: {nome_medico}')
-                print(f'{"Data Nascimento":<20}: {data_nascimento}')
-                print(f'{"Cpf":<20}: {cpf_medico}')
-                print(f'{"Sexo":<20}: {sexo_medico}')
-                print(f'{"Telefone":<20}: {telefone}')
-                print(f'{"Email":<20}: {email_medico}')
+
+                # Mesmo padrao de exibicao usado no cadastro: percorre o dicionario inteiro automaticamente, sem precisar listar campo por campo no print.
+                for chave, valor in profissional.items():
+                    campo = chave.replace('_', ' ').title()
+                    print(f'{campo:<20}: {valor}')
+
                 print('=' * 38)
 
         continuar = input('\nDeseja realizar outra pesquisa? (S/N): ').upper()
 
+        # Como esse "if" e a ultima linha do while, nao precisa de "else: continue" - se a condicao for falsa, o loop ja volta pro topo naturalmente.
         if continuar != 'S':
             break
 
 
 def deletar_profissional():
-    if len(medicos) == 0:
+    if len(profissional) == 0:
         print('Não há profissionais cadastrados.')
         return
 
     print('\n========== PROFISSIONAIS CADASTRADOS ==========')
-    for codigo, dados in medicos.items():
+    for codigo, dados in profissional.items():
         # dados[0] = nome (de acordo com a tupla: nome, data_nascimento, cpf, sexo, telefone, email)
         print(f'Código: {codigo} - Nome: {dados[0]}')
 
     codigo = int(input('\nDigite o código do profissional que deseja excluir: '))
 
-    if codigo not in medicos:
+    if codigo not in profissional:
         print('Profissional não encontrado!')
         return
 
-    nome_profissional = medicos[codigo][0]
+    nome_profissional = profissional[codigo][0]
     confirmar = input(
         f'Tem certeza que deseja excluir o profissional '
         f'"{nome_profissional}"? (S/N): '
     ).upper()
 
     if confirmar == 'S':
-        del medicos[codigo]
+        del profissional[codigo]
         print('Profissional excluído com sucesso!')
     else:
         print('Exclusão cancelada.')

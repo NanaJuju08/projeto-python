@@ -12,7 +12,7 @@ def cadastrar_cliente():
             'Abaixo, insira as informações necessárias para concluir o cadastro!\n'
         )
 
-        cliente['nome'] = input('Nome completo: ')
+        cliente['nome'] = input('Nome completo: ').capitalize()
 
         while True:
             cpf = validar_cpf(input('CPF: '))
@@ -87,6 +87,7 @@ def cadastrar_cliente():
 
 def alterar_cliente():
     while True:
+        print('\n')
         for c in clientes:
             print(f'Código: {c["codigo"]} - Nome: {c["nome"]}')
 
@@ -109,9 +110,9 @@ def alterar_cliente():
             campo = chave.replace('_', ' ').title()
             print(f'{campo:<20}: {valor}')
 
-        print('\nOBSERVAÇÃO: Deixe em branco para manter o valor atual.')
+        print('\nOBSERVAÇÃO: Deixe em branco para manter o valor atual.\n')
 
-        nome = input(f'Nome [{cliente_encontrado["nome"]}]: ')
+        nome = input(f'Nome [{cliente_encontrado["nome"]}]: ').capitalize()
         if nome:
             cliente_encontrado['nome'] = nome
 
@@ -161,7 +162,8 @@ def alterar_cliente():
         print(f'\nDados alterados do cliente:')
 
         for chave, valor in cliente_encontrado.items():
-            print(f'{chave}: {valor}')
+            campo = chave.replace('_', ' ').title()
+            print(f'{campo:<20}: {valor}')
         
         continuar = input('\nDeseja alterar outro cliente? (S/N): ').upper()
 
@@ -177,11 +179,10 @@ def pesquisar_cliente():
         )
 
         # Cada input vira um "filtro opcional". Se a pessoa deixar em branco, a variável fica como string vazia (''), que é "falsy" em Python - isso e o que faz o filtro ser ignorado mais embaixo.
-        codigo = input('Codigo: ')
-        nome = input('Nome: ').lower()
+        codigo = input('Código: ')
+        nome = validar_texto(input('Nome: '))
         cpf = input('CPF: ')
-        email = input('Email: ').lower()
-        endereco = input('Endereco: ').lower()
+        email = input('Email: ').lower().strip()
 
         # Só tenta validar/mascarar o CPF se a pessoa realmente digitou algo.
         # Se o CPF for invalido, validar_cpf() retorna None, e o "if cpf_validado" evita que a gente tente mascarar um valor inválido.
@@ -191,23 +192,22 @@ def pesquisar_cliente():
 
         resultados = []  # lista temporaria, criada do zero em cada pesquisa
 
+
         for cliente in clientes:
+
             # Cada "if campo and condicao: continue" e um filtro.
             # - Se o campo estiver vazio (''), o "and" ja para ali e o filtro e ignorado (o cliente passa direto, sem ser bloqueado).
             # - Se o campo estiver preenchido, testa a condicao: se o cliente NÃO bate com o filtro, "continue" pula pro proximo cliente sem adicionar ele em resultados.
             if codigo and cliente['codigo'] != int(codigo):
                 continue
 
-            if nome and nome not in cliente['nome'].lower():
+            if nome and nome not in validar_texto(cliente['nome']):
                 continue
 
             if cpf and cliente['cpf'] != cpf:
                 continue
 
             if email and email not in cliente['email'].lower():
-                continue
-
-            if endereco and endereco not in cliente['endereco'].lower():
                 continue
 
             # Se o cliente passou por TODOS os filtros sem cair em nenhum "continue", ele bate com a pesquisa e entra no resultado.
@@ -265,6 +265,6 @@ def deletar_cliente():
 
     if confirmar == 'S':
         clientes.remove(cliente_encontrado)
-        print('Cliente excluido com sucesso!')
+        print('\nCliente excluido com sucesso!\n')
     else:
-        print('Exclusão cancelada.')
+        print('\nExclusão cancelada.\n')

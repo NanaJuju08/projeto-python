@@ -1,33 +1,51 @@
+from dados.listas import *
 from datetime import datetime
 import re
 
+#OBSERVAÇÃO: O Try e o Except são utilizados para retorna o erro ao usuário sem quebrar o código
+
+#Função para validar se o campo recebe apenas valor, o ValueError serve para mostrar o erro do dado inválido para o tipo dele, mas sem quebrar o sistema
 def validar_mensagem(mensagem):
     while True:
         try:
             numero = int(input(mensagem))
 
             if numero < 0:
-                print('O valor nao pode ser negativo!')
+                print('O valor não pode ser negativo!')
                 continue
 
             return numero
 
         except ValueError:
-            print('Apenas numeros sao validos!')
+            print('Apenas números são válidos!')
+
+def validar_float(mensagem):
+    while True:
+        try:
+            numero = float(input(mensagem))
+
+            if numero < 0:
+                print('O valor não pode ser negativo!')
+                continue
+
+            return numero
+
+        except ValueError:
+            print('Apenas números são válidos!')
+
+
+def limpar_cpf(cpf):
+    return ''.join(filter(str.isdigit, str(cpf))) #Ela serve para remover tudo que não for número de uma variável cpf.
 
 
 def validar_cpf(cpf):
     cpf = limpar_cpf(cpf)
 
     if len(cpf) != 11:
-        print('O campo CPF precisa ter 11 numeros.')
+        print('O campo CPF precisa ter 11 números.')
         return None
 
     return cpf
-
-
-def limpar_cpf(cpf):
-    return ''.join(filter(str.isdigit, str(cpf)))
 
 
 def cpf_duplicado(cpf, clientes):
@@ -35,45 +53,110 @@ def cpf_duplicado(cpf, clientes):
 
     for cliente in clientes:
         if limpar_cpf(cliente['cpf']) == cpf:
-            return True
+            return True #Retorna true se encontrou
 
-    return False
+    return False #Retorna false se não encontrou
 
 
 def mascarar_cpf(cpf):
     cpf = limpar_cpf(cpf)
 
     if len(cpf) != 11:
-        return None
+        return None #Retorna None se não tem nada
 
     return f'{cpf[:3]}.{cpf[3:6]}.{cpf[6:9]}-{cpf[9:]}'
 
-def validar_data(mensagem):
-    while True:
-        data = input(mensagem)
+    #cpf[:3]      # 123
+    #cpf[3:6]     # 456
+    #cpf[6:9]     # 789
+    #cpf[9:]      # 00
 
-        try:
-            datetime.strptime(data, '%d/%m/%Y')
-            return data
-        except ValueError:
-            print('Data invalida! Use o formato dd/mm/aaaa.')
 
-def validar_telefone(mensagem):
+#Limpar o campo da data
+def limpar_data(data):
+    return ''.join(filter(str.isdigit, str(data)))
+
+
+def validar_data_numeros(data):
+    data = limpar_data(data)
+
+    if len(data) != 8:
+        print('A data deve possuir 8 números.')
+        return None
+
+    return data
+
+
+#Mascarar as datas
+def mascarar_data(data):
+    data = limpar_data(data)
+
+    if len(data) != 8:
+        return None
+
+    return f'{data[:2]}/{data[2:4]}/{data[4:]}'
+
+
+#Validar a mascarar o número de telefone em tipo móvel (00000-0000)
+def validar_telefone(mensagem, permitir_vazio=False):
     while True:
-        telefone = ''.join(filter(str.isdigit, input(mensagem)))
+        entrada = input(mensagem)
+
+        if permitir_vazio and entrada == '':
+            return ''
+
+        telefone = ''.join(filter(str.isdigit, entrada))
 
         if len(telefone) == 9:
             return f'{telefone[:5]}-{telefone[5:]}'
 
-        print('Telefone invalido! Use o formato 00000-0000.')
+        print('Telefone inválido! Use o formato 00000-0000.')
 
-def validar_email(mensagem):
-    padrao = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+
+def telefone_duplicado(telefone, clientes):
+    telefone = ''.join(filter(str.isdigit, telefone))
+
+    for cliente in clientes:
+        telefone_cliente = ''.join(
+            filter(str.isdigit, cliente['telefone'])
+        )
+
+        if telefone_cliente == telefone:
+            return True
+
+    return False
+
+
+#Validar o e-mail
+def validar_email(mensagem, permitir_vazio=False):
+    padrao = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$' #Expressão para validar o e-mail
 
     while True:
         email = input(mensagem).strip()
 
+        if permitir_vazio and email == '':
+            return ''
+
         if re.match(padrao, email):
             return email
 
-        print('E-mail invalido!')
+        print('E-mail inválido!')
+
+
+def email_duplicado(email, clientes):
+    email = email.lower().strip()
+
+    for cliente in clientes:
+        if cliente['email'].lower().strip() == email:
+            return True
+
+    return False
+
+
+#Busca o cliente por código, se retornar resposta, ele mostra o dicionário do cliente
+def buscar_cliente_por_codigo(codigo):
+    for cliente in clientes:
+        if cliente['codigo'] == codigo:
+            return cliente
+        
+    return None

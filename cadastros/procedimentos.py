@@ -12,6 +12,16 @@ def cadastrar_procedimento():
             'Abaixo, insira as informacoes necessarias para concluir o cadastro!\n'
         )
 
+        procedimento['nome'] = input('Nome: ').capitalize()
+        procedimento['descricao'] = input('Descrição: ').capitalize()
+        procedimento['valor'] = validar_float('Valor (Ex.: 00.0): ')
+        procedimento['duracao'] = input('Duração (colocar em minutos - Ex.: 120min): ')
+        procedimento['sessoes'] = validar_mensagem('Sessões: ')
+        procedimento['observacoes'] = input('Observações: ').capitalize()
+
+
+        procedimentos.append(procedimento)
+
         print(
             '\procedimento cadastrado com sucesso!'
             '\n========== DADOS DO PROCEDIMENTO =========='
@@ -27,3 +37,90 @@ def cadastrar_procedimento():
 
         if continuar != 'S':
             break
+
+
+def alterar_procedimento():
+    while True:
+        codigo = validar_mensagem('Digite o código do procedimento: ')
+
+        procedimento_encontrado = None #Não agrega nenhum valor
+
+        #A variável procedimento percorre a lista, se caso o código digitado esteja na lista, retorna o procedimento_encontrado igual ao procedimento
+        for procedimento in procedimentos:
+            if procedimento['codigo'] == codigo:
+                procedimento_encontrado = procedimento
+                break
+
+        if procedimento_encontrado == None:
+            print('procedimento não encontrado!')
+            return
+
+        print(f'\nDados atuais do procedimento do código {codigo}:')
+        for chave, valor in procedimento_encontrado.items():
+            campo = chave.replace('_', ' ').title()
+            print(f'{campo:<20}: {valor}')
+
+        print('\nOBSERVAÇÃO: Deixe em branco para manter o valor atual.')
+
+        nome = input(f'Nome [{procedimento_encontrado["nome"]}]: ')
+        if nome:
+            procedimento_encontrado['nome'] = nome
+
+        descricao = input(f'Descrição [{procedimento_encontrado["descricao"]}]: ')
+        if descricao:
+            procedimento_encontrado['descricao'] = descricao
+
+
+        descricao = input(f'Descrição [{procedimento_encontrado["descricao"]}]: ')
+        if descricao:
+            procedimento_encontrado['descricao'] = descricao
+        
+
+        print('\nprocedimento alterado com sucesso!')
+    
+        print(f'\nDados alterado do procedimento do código {procedimento_encontrado}:')
+
+        for chave, valor in procedimento_encontrado.items():
+            print(f'{chave}: {valor}')
+        
+        continuar = input('\nDeseja cadastrar outro procedimento? (S/N): ').upper()
+
+        if continuar != 'S':
+            break
+
+
+def pesquisar_procedimento():
+    print('Pesquisar')
+
+
+def deletar_procedimento():
+    if len(procedimentos) == 0:
+        print('Não há procedimentos cadastrados.')
+        return
+
+    print('\n========== PROCEDIMENTOS CADASTRADOS ==========')
+    for p in procedimentos:
+        print(f'Código: {p["codigo"]} - Nome: {p["nome"]}')
+
+    codigo = int(input('\nDigite o código do procedimento que deseja excluir: '))
+
+    procedimento_encontrado = None
+    for p in procedimentos:
+        if p['codigo'] == codigo:
+            procedimento_encontrado = p
+            break
+
+    if procedimento_encontrado is None:
+        print('Procedimento não encontrado!')
+        return
+
+    confirmar = input(
+        f'Tem certeza que deseja excluir o procedimento '
+        f'"{procedimento_encontrado["nome"]}"? (S/N): '
+    ).upper()
+
+    if confirmar == 'S':
+        procedimentos.remove(procedimento_encontrado)
+        print('Procedimento excluído com sucesso!')
+    else:
+        print('Exclusão cancelada.')

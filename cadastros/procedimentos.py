@@ -23,7 +23,7 @@ def cadastrar_procedimento():
         procedimentos.append(procedimento)
 
         print(
-            '\procedimento cadastrado com sucesso!'
+            '\nProcedimento cadastrado com sucesso!'
             '\n========== DADOS DO PROCEDIMENTO =========='
         )
 
@@ -75,8 +75,9 @@ def alterar_procedimento():
             procedimento_encontrado["descricao"] = descricao
         
 
-        valor = validar_float(f'Valor [{procedimento_encontrado["valor"]}] (Ex.: 00.0): ')
-        if valor:
+        valor = validar_float(f'Valor [{procedimento_encontrado["valor"]}] (Ex.: 00.0): ', permitir_vazio=True)
+        
+        if valor is not None:
             procedimento_encontrado["valor"] = valor
 
 
@@ -92,10 +93,11 @@ def alterar_procedimento():
 
         print('\nprocedimento alterado com sucesso!')
     
-        print(f'\nDados alterado do procedimento do código {procedimento_encontrado}:')
+        print(f'\nDados alterado do procedimento:')
 
         for chave, valor in procedimento_encontrado.items():
-            print(f'{chave}: {valor}')
+            campo = chave.replace('_', ' ').title()
+            print(f'{campo:<20}: {valor}')
         
         continuar = input('\nDeseja alterar outro procedimento? (S/N): ').upper()
 
@@ -117,6 +119,20 @@ def pesquisar_procedimento():
         duracao = input('Duração: ')
         sessoes = input('Sessões: ')
 
+        if valor:
+            try:
+                valor = float(valor)
+            except ValueError:
+                print('Valor inválido, pesquisa cancelada.')
+                continue
+
+        if sessoes:
+            try:
+                sessoes = int(sessoes)
+            except ValueError:
+                print('Sessões inválido, pesquisa cancelada.')
+                continue
+
         resultados = []
 
         for procedimento in procedimentos:
@@ -130,13 +146,13 @@ def pesquisar_procedimento():
             if descricao and descricao not in validar_texto(procedimento['descricao']):
                 continue
 
-            if valor and procedimento['valor'] != float(valor):
+            if valor and procedimento['valor'] != valor:
                 continue
 
             if duracao and duracao.lower() not in procedimento['duracao'].lower():
                 continue
 
-            if sessoes and procedimento['sessoes'] != int(sessoes):
+            if sessoes and procedimento['sessoes'] != sessoes:
                 continue
 
             resultados.append(procedimento)
@@ -145,18 +161,13 @@ def pesquisar_procedimento():
             print('\nNenhum procedimento encontrado!')
 
         else:
-            print(
-                f'\n{len(resultados)} '
-                'procedimento(s) encontrado(s):'
-            )
+            print(f'\n{len(resultados)} procedimento(s) encontrado(s):')
 
-            for procedimento in resultados:
-                print(
-                    '\n========== DADOS DO PROCEDIMENTO =========='
-                )
+            for procedimento in procedimentos:
+                print('\n========== DADOS DO PROCEDIMENTO ==========')
 
                 for chave, valor in procedimento.items():
-                    campo = (chave.replace('_', ' ').title())
+                    campo = chave.replace('_', ' ').title()
                     print(f'{campo:<20}: {valor}')
 
                 print('=' * 38)
@@ -165,7 +176,6 @@ def pesquisar_procedimento():
 
         if continuar != 'S':
             break
-
 
 def deletar_procedimento():
     if len(procedimentos) == 0:
@@ -187,9 +197,12 @@ def deletar_procedimento():
     if procedimento_encontrado is None:
         print('Procedimento não encontrado!')
         return
+    
+    if procedimento_tem_agendamento_em_aberto(procedimento_encontrado['codigo']):
+        print('Procedimento possui agendamento em aberto e não pode ser excluido!')
+        return
 
-    confirmar = input(
-        f'Tem certeza que deseja excluir o procedimento {procedimento_encontrado["nome"]}? (S/N): ').upper()
+    confirmar = input(f'Tem certeza que deseja excluir o procedimento {procedimento_encontrado["nome"]}? (S/N): ').upper()
 
     if confirmar == 'S':
         procedimentos.remove(procedimento_encontrado)

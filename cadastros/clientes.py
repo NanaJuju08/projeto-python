@@ -150,13 +150,6 @@ def alterar_cliente():
             cliente_encontrado['email'] = email
             break
 
-
-        endereco = input(
-            f'Endereco [{cliente_encontrado["endereco"]}]: '
-        )
-        if endereco:
-            cliente_encontrado['endereco'] = endereco
-
         print('\nCliente alterado com sucesso!')
     
         print(f'\nDados alterados do cliente:')
@@ -178,26 +171,22 @@ def pesquisar_cliente():
             '\nDeixe em branco para não filtrar pelo campo.\n'
         )
 
-        # Cada input vira um "filtro opcional". Se a pessoa deixar em branco, a variável fica como string vazia (''), que é "falsy" em Python - isso e o que faz o filtro ser ignorado mais embaixo.
         codigo = input('Código: ')
         nome = validar_texto(input('Nome: '))
         cpf = input('CPF: ')
         email = input('Email: ').lower().strip()
 
-        # Só tenta validar/mascarar o CPF se a pessoa realmente digitou algo.
-        # Se o CPF for invalido, validar_cpf() retorna None, e o "if cpf_validado" evita que a gente tente mascarar um valor inválido.
         if cpf:
             cpf_validado = validar_cpf(cpf)
-            cpf = mascarar_cpf(cpf_validado) if cpf_validado else None
+            if not cpf_validado:
+                print('CPF inválido, pesquisa cancelada.')
+                continue
+            cpf = mascarar_cpf(cpf_validado)
 
-        resultados = []  # lista temporaria, criada do zero em cada pesquisa
-
+        resultados = []
 
         for cliente in clientes:
 
-            # Cada "if campo and condicao: continue" e um filtro.
-            # - Se o campo estiver vazio (''), o "and" ja para ali e o filtro e ignorado (o cliente passa direto, sem ser bloqueado).
-            # - Se o campo estiver preenchido, testa a condicao: se o cliente NÃO bate com o filtro, "continue" pula pro proximo cliente sem adicionar ele em resultados.
             if codigo and cliente['codigo'] != int(codigo):
                 continue
 
@@ -207,10 +196,9 @@ def pesquisar_cliente():
             if cpf and cliente['cpf'] != cpf:
                 continue
 
-            if email and email not in cliente['email'].lower():
+            if email and email not in cliente['email'].lower().strip():
                 continue
 
-            # Se o cliente passou por TODOS os filtros sem cair em nenhum "continue", ele bate com a pesquisa e entra no resultado.
             resultados.append(cliente)
 
         if not resultados:
@@ -222,7 +210,6 @@ def pesquisar_cliente():
             for cliente in resultados:
                 print('\n========== DADOS DO CLIENTE ==========')
 
-                # Mesmo padrao de exibicao usado no cadastro: percorre o dicionario inteiro automaticamente, sem precisar listar campo por campo no print.
                 for chave, valor in cliente.items():
                     campo = chave.replace('_', ' ').title()
                     print(f'{campo:<20}: {valor}')
@@ -231,7 +218,6 @@ def pesquisar_cliente():
 
         continuar = input('\nDeseja realizar outra pesquisa? (S/N): ').upper()
 
-        # Como esse "if" e a ultima linha do while, nao precisa de "else: continue" - se a condicao for falsa, o loop ja volta pro topo naturalmente.
         if continuar != 'S':
             break
 
@@ -255,7 +241,11 @@ def deletar_cliente():
             break
 
     if cliente_encontrado is None:
-        print('Cliente nao encontrado!')
+        print('Cliente não encontrado!')
+        return
+
+    if cliente_tem_agendamento_em_aberto(cliente_encontrado['codigo']):
+        print('Cliente possui agendamento em aberto e não pode ser excluido!')
         return
 
     confirmar = input(

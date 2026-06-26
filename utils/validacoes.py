@@ -21,10 +21,16 @@ def validar_mensagem(mensagem):
             print('Apenas números são válidos!')
 
 
-def validar_float(mensagem):
+
+def validar_float(mensagem, permitir_vazio=False):
     while True:
         try:
-            numero = float(input(mensagem))
+            entrada = input(mensagem)
+
+            if permitir_vazio and entrada == '':
+                return None
+
+            numero = float(entrada)
 
             if numero < 0:
                 print('O valor não pode ser negativo!')
@@ -181,6 +187,42 @@ def buscar_procedimento_por_codigo(codigo):
         
     return None
 
+
+def agendamento_em_aberto(agendamento):
+    return agendamento['status'] not in status_agendamento[3:]
+
+
+def cliente_tem_agendamento_em_aberto(codigo_cliente):
+    for agendamento in agendamentos:
+        if (
+            agendamento['codigo_cliente'] == codigo_cliente
+            and agendamento_em_aberto(agendamento)
+        ):
+            return True
+
+    return False
+
+
+def profissional_tem_agendamento_em_aberto(codigo_profissional):
+    for agendamento in agendamentos:
+        if (
+            agendamento['codigo_profissional'] == codigo_profissional
+            and agendamento_em_aberto(agendamento)
+        ):
+            return True
+
+    return False
+
+def procedimento_tem_agendamento_em_aberto(codigo_procedimento):
+    for agendamento in agendamentos:
+        if (
+            agendamento['codigo_procedimento'] == codigo_procedimento
+            and agendamento_em_aberto(agendamento)
+        ):
+            return True
+
+    return False
+
 def validar_texto(texto):
     texto = texto.lower().strip()
 
@@ -238,6 +280,9 @@ def cliente_ocupado(codigo_cliente, inicio_novo, fim_novo, agendamentos, codigo_
         if agendamento['codigo_cliente'] != codigo_cliente:
             continue
 
+        if not agendamento_em_aberto(agendamento):
+            continue
+
         inicio = datetime.strptime(
             f"{agendamento['data_inicio']} "
             f"{agendamento['hora_inicio']}",
@@ -263,6 +308,9 @@ def profissional_ocupado(codigo_profissional, inicio_novo, fim_novo, agendamento
             continue
 
         if agendamento['codigo_profissional'] != codigo_profissional:
+            continue
+
+        if not agendamento_em_aberto(agendamento):
             continue
 
         inicio = datetime.strptime(

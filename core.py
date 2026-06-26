@@ -2,6 +2,7 @@ from cadastros.clientes import *
 from cadastros.profissionais import *
 from cadastros.procedimentos import *
 from cadastros.agendamentos import *
+from cadastros.relatorios import *
 from utils.validacoes import *
 
 nome_secretario = input(
@@ -139,23 +140,23 @@ else:
                            '2 - Profissionais\n'
                            '3 - Procedimentos\n'
                            '4 - Agendamentos\n'
-                           '5 - Todos'
+                           '5 - Geral\n'
                            'Escolha a opção que deseja: ')
                 
                 if op == 1:
-                    cadastrar_cliente()
+                    relatorio_cliente()
                 
                 elif op == 2:
-                    alterar_cliente()
+                    relatorio_profissional()
                 
                 elif op == 3:
-                    deletar_cliente()
+                    relatorio_procedimento()
                 
                 elif op == 4:
-                    pesquisar_cliente()
+                    relatorio_agendamento()
                 
                 elif op == 5:
-                    pesquisar_cliente()
+                    relatorio_geral()
                 
                 else:
                     print('Opção inválida. Tente novamente.')

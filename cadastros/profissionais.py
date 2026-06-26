@@ -1,3 +1,5 @@
+from dados.listas import profissionais
+from utils.validacoes import *
 from datetime import datetime
 import re #regex - é uma sequência de caracteres que forma um padrão de busca, usada de forma rápida para validar, encontrar, ou substituir textos e dados que seguem regras específicas (como formatos de e-mail, CPF, ou senhas).
 
@@ -5,40 +7,86 @@ medicos = {}
 
 def cadastrar_profissional():
     while True:
-        codigo = int(input('Digite o código do novo médico: '))
-        if codigo in medicos:
-            print('Código já em uso, tente outro.')
-            continue
-        else: 
-            nome = input('Digite o nome do novo médico: ')
-            data_nascimento  = input("Digite a data de nascimento do novo médico (DD/MM/AAAA): ")
-            data = datetime.strptime(data_nascimento , "%d/%m/%Y")
-            cpf_numeros = input('Digite o CPF do novo médico: ')
-            cpf = re.sub(r'\D', '', cpf_numeros)
-            cpf_duplicado = False
+        profissional = {}
+        profissional['codigo'] = len(profissionais) + 1
 
-            if len(cpf) != 11:
-                print('CPF inválido!')
+        print(
+            'Tudo pronto para o cadastro do profissional.\n'
+            'Abaixo, insira as informações necessárias para concluir o cadastro!\n'
+        )
+
+        profissional['nome'] = input('Nome completo: ').capitalize()
+
+        while True:
+            cpf = validar_cpf(input('CPF: '))
+
+            if cpf:
+                if cpf_duplicado(cpf, profissionais):
+                    print('CPF já cadastrado!')
+                    continue
+
+                profissional['cpf'] = mascarar_cpf(cpf)
+                break
+
+        while True:
+            data = validar_data_numeros(
+                input('Data de nascimento (ddmmaaaa): ')
+            )
+
+            if data:
+                profissional['data_nascimento'] = mascarar_data(data)
+                break
+        
+        while True:
+            telefone = validar_telefone(
+                'Telefone móvel: '
+            )
+
+            if telefone_duplicado(telefone, profissionais):
+                print('Telefone já cadastrado!')
                 continue
 
-            for dados in medicos.values():
-                if dados[2] == cpf:
-                    cpf_duplicado = True
-                    break
-
-            if cpf_duplicado:
-                print('CPF já está em uso!')
-                continue
-
-            sexo = input('Digite o sexo do novo médico: ').upper()
-            telefone= int(input('Digite o número de telefone do novo médico: '))
-            email = input('Digite o email do novo médico: ')
-            if not re.fullmatch(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', email):
-                print('Email inválido!')
-                continue
-
-            medicos[codigo] = (nome, data_nascimento, cpf, sexo, telefone, email)
+            profissional['telefone'] = telefone
             break
+
+
+        while True:
+            email = validar_email(
+                'E-mail (Ex.: user@gmail.com): '
+            )
+
+            if email_duplicado(email, profissionais):
+                print('E-mail já cadastrado!')
+                continue
+
+            profissional['email'] = email
+            break
+
+        profissional['especialidade'] = input('Especialidade: ').capitalize()
+        profissional['crm'] = input('CRM: ').capitalize()
+        profissional['observacoes'] = input('Observações sobre o profissional: ').capitalize()
+
+        profissionais.append(profissional)
+
+        print(
+            '\nProfissional cadastrado com sucesso!'
+            '\n========== DADOS DO PROFISSIONAL =========='
+        )
+
+        for chave, valor in profissional.items():
+            campo = chave.replace('_', ' ').title()
+            print(f'{campo:<20}: {valor}')
+
+        print('=' * 38)
+
+        continuar = input('\nDeseja cadastrar outro profissional? (S/N): ').upper()
+
+        if continuar != 'S':
+            break
+
+
+def alterar_profissional():
+    print('Alterar')
 
 
 def pesquisar_profissional():
@@ -61,7 +109,7 @@ def pesquisar_profissional():
 
         resultados = []
 
-        # medicos.items() devolve a CHAVE (cod) e o VALOR (dados) de cada item do dicionario ao mesmo tempo. Diferente de "clientes", aqui "dados" e uma TUPLA, nao um dicionario - por isso precisamos desempacotar ela manualmente na linha de baixo.
+        # medicos.items() devolve a CHAVE (cod) e o VALOR (dados) de cada item do dicionario ao mesmo tempo. Diferente de "profissionals", aqui "dados" e uma TUPLA, nao um dicionario - por isso precisamos desempacotar ela manualmente na linha de baixo.
         for cod, dados in medicos.items():
             # Desempacotamento de tupla: cada posicao da tupla "dados" e atribuida a uma variavel com nome, na MESMA ORDEM em que foi salva no cadastro (nome, data_nascimento, cpf, sexo, telefone, email).
             # Isso evita ficar usando dados[0], dados[1], dados[2]... no resto do codigo.
@@ -113,11 +161,6 @@ def pesquisar_profissional():
         if continuar != 'S':
             break
 
-def alterar_profissional():
-    print('Alterar')
-
-def pesquisar_profissional():
-    print('Pesquisar')
 
 def deletar_profissional():
     if len(medicos) == 0:

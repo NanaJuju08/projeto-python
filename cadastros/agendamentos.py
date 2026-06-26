@@ -136,8 +136,79 @@ def alterar_agendamento():
 
 
 def pesquisar_agendamento():
-    print('Pesquisar')
+    while True:
+        print(
+            '\n========== PESQUISA DE AGENDAMENTO =========='
+            '\nPreencha os campos que deseja usar como filtro.'
+            '\nDeixe em branco para nao filtrar pelo campo.\n'
+        )
 
+        # Mesma logica das outras pesquisas: campo vazio = filtro ignorado.
+        codigo = input('Codigo do agendamento: ')
+        codigo_cliente = input('Codigo do cliente: ')
+        codigo_profissional = input('Codigo do profissional: ')
+        codigo_procedimento = input('Codigo do procedimento: ')
+        nome_cliente = validar_texto(input('Nome do cliente: '))
+        nome_profissional = validar_texto(input('Nome do profissional: '))
+        data_inicio = input('Data de inicio (ddmmaaaa): ')
+        status = validar_texto(input('Status (Ex.: Agendado, Confirmado...): '))
+
+        # As datas no agendamento sao guardadas ja mascaradas (ex.: 26/06/2026).
+        # Se a pessoa digitar so numeros (ddmmaaaa), passamos pela mesma mascara usada no cadastro, pra comparacao bater certinho.
+        if data_inicio:
+            data_validada = validar_data_numeros(data_inicio)
+            data_inicio = mascarar_data(data_validada) if data_validada else None
+
+        resultados = []  # lista temporaria, criada do zero em cada pesquisa
+
+        for agendamento in agendamentos:
+
+            if codigo and agendamento['codigo'] != int(codigo):
+                continue
+
+            if codigo_cliente and agendamento['codigo_cliente'] != codigo_cliente:
+                continue
+
+            if codigo_profissional and agendamento['codigo_profissional'] != codigo_profissional:
+                continue
+
+            if codigo_procedimento and agendamento['codigo_procedimento'] != codigo_procedimento:
+                continue
+
+            if nome_cliente and nome_cliente not in validar_texto(agendamento['nome_cliente']):
+                continue
+
+            if nome_profissional and nome_profissional not in validar_texto(agendamento['nome_profissional']):
+                continue
+
+            if data_inicio and agendamento['data_inicio'] != data_inicio:
+                continue
+
+            if status and status not in validar_texto(agendamento['status']):
+                continue
+
+            # Se o agendamento passou por TODOS os filtros, entra no resultado.
+            resultados.append(agendamento)
+
+        if not resultados:
+            print('\nNenhum agendamento encontrado!')
+
+        else:
+            print(f'\n{len(resultados)} agendamento(s) encontrado(s):')
+
+            for agendamento in resultados:
+                print('\n========== DADOS DO AGENDAMENTO ==========')
+
+                for chave, valor in agendamento.items():
+                    campo = chave.replace('_', ' ').title()
+                    print(f'{campo:<20}: {valor}')
+
+                print('=' * 38)
+
+        continuar = input('\nDeseja realizar outra pesquisa? (S/N): ').upper()
+
+        if continuar != 'S':
+            break
     
 def deletar_agendamento():
     print('Deletar')
